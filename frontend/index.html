@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Is it a dog or a cat?</title>
+    <style>
+      body {
+        font-size: 16px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+        color: white;
+      }
+
+      .Background-Image {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        background: url("./bgr.jpg") fixed center no-repeat;
+        background-size: cover;
+        filter: blur(20px);
+        z-index: -1;
+      }
+
+      main {
+        width: 60%;
+        margin: 0 auto;
+        padding-top: 20%;
+      }
+
+      h1 {
+        font-size: 4rem;
+        font-style: italic;
+      }
+
+      h2 {
+        font-size: 6rem;
+        border: 3px solid white;
+        padding: 2rem;
+      }
+
+      h2:empty {
+        display: none;
+      }
+
+      hr {
+        border: 0;
+        border-bottom: 1px solid white;
+      }
+
+      p {
+        font-size: 1.5rem;
+      }
+
+      .InputFile {
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+        overflow: hidden;
+        position: absolute;
+        z-index: -1;
+      }
+
+      .InputFile + label {
+        font-size: 1.25em;
+        font-weight: 700;
+        padding: 0.5rem 1rem;
+        color: white;
+        background-color: black;
+        display: inline-block;
+        cursor: pointer;
+      }
+
+      .InputFile:focus + label,
+      .InputFile + label:hover {
+        background-color: blue;
+        transition: 0.2s;
+      }
+
+      .InputFile:focus + label {
+        outline: 1px dotted #000;
+        outline: -webkit-focus-ring-color auto 5px;
+      }
+
+      @media screen and (max-width: 768px) {
+        main {
+          width: 95%;
+        }
+
+        h1 {
+          font-size: 3rem;
+        }
+
+        h2 {
+          font-size: 4rem;
+          padding: 1rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="Background-Image"></div>
+    <main>
+      <h1>Is it a dog or a cat?</h1>
+
+      <form>
+        <input
+          type="file"
+          id="file"
+          class="InputFile"
+          accept="*/image"
+          id="FileUpload"
+        />
+        <label for="file">Pick an image or take a photo</label>
+      </form>
+
+      <h2 id="Result"></h2>
+    </main>
+
+    <script>
+      const REGION = "europe-west1";
+      const PROJECT_ID = "";
+      const endpoint = `https://${REGION}-${PROJECT_ID}.cloudfunctions.net/catOrDog`;
+
+      const options = bytes => {
+        return {
+          "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json",
+          method: "POST",
+          body: bytes
+        };
+      };
+
+      document.querySelector("input").addEventListener(
+        "change",
+        function() {
+          const reader = new FileReader();
+
+          reader.onloadend = function() {
+            submitImage(this.result);
+          };
+
+          reader.readAsDataURL(this.files[0]);
+        },
+        false
+      );
+
+      async function submitImage(bytes) {
+        bytes = bytes.split(",")[1];
+
+        const resp = await getData(bytes);
+        const data = JSON.parse(resp.body);
+        const unpackedData = JSON.parse(data);
+
+        const animal = unpackedData[0].payload[0].displayName;
+        const score = unpackedData[0].payload[0].classification.score;
+
+        displayResult(animal, score);
+      }
+
+      async function getData(bytes) {
+        const data = await fetch(endpoint, options(bytes));
+        return data.json();
+      }
+
+      function prettifyScore(score) {
+        const prettifiedScore = Math.round(score * 100);
+        return prettifiedScore;
+      }
+
+      function displayResult(animal, score) {
+        const prettifiedScore = prettifyScore(score);
+
+        let displayText = ``;
+        if (prettifiedScore < 97) {
+          displayText = `I'm not sure this is either a cat or a dog...`;
+        } else displayText = `I'm ${prettifiedScore}% sure it's a ${animal}!`;
+        document.querySelector("#Result").innerText = displayText;
+      }
+    </script>
+  </body>
+</html>
