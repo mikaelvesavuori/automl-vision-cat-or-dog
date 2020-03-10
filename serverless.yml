@@ -6,15 +6,20 @@ plugins:
 
 provider:
   name: google
-  region: europe-west1 # OPTIONAL: Edit if you want
+  region: us-central1 # This has to be us-central1 for AutoML
 
   # THESE TWO MUST BE UPDATED BY YOU!
-  project: "" # EDIT THIS to your value
-  credentials: ~/.gcloud/{KEYFILE}.json # EDIT THIS to your value
+  project: ""
+  credentials: ~/.gcloud/{KEYFILE}.json
 
   runtime: nodejs10
   memorySize: 1024
   timeout: 10s
+
+  environment:
+    MODEL_ID: "" # EDIT THIS to your value; looks like "ICN2366560507935772249"
+    PROJECT_ID: ${self:provider.project}
+    REGION: ${self:provider.region}
 
 functions:
   catOrDog:

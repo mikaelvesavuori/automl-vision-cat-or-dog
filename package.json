@@ -1,13 +1,17 @@
 {
   "name": "automl-vision-cat-or-dog",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "author": "Mikael Vesavuori",
   "license": "MIT",
   "dependencies": {
-    "@google-cloud/automl": "^1.10.0",
-    "@google-cloud/storage": "^4.3.0",
-    "@google-cloud/vision": "^1.8.0"
+    "@google-cloud/automl": "^1.10.1",
+    "@google-cloud/storage": "^4.5.0",
+    "@google-cloud/vision": "^1.10.0"
+  },
+  "devDependencies": {
+    "serverless": "^1.65.0",
+    "serverless-google-cloudfunctions": "^2.4.1"
   },
   "scripts": {
     "vision": "node index.js"

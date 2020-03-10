@@ -1,9 +1,44 @@
 "use strict";
 
-const catOrDogFunction = require("./functions/catOrDog");
+const automl = require("@google-cloud/automl");
+const client = new automl.PredictionServiceClient();
 
-const functions = require("firebase-functions");
-const f = functions.region("europe-west1").https;
-const catOrDog = f.onRequest(catOrDogFunction);
+exports.catOrDog = async (req, res) => {
+  res.set("Access-Control-Allow-Origin", "*");
 
-module.exports = { catOrDog };
+  if (req.method === "OPTIONS") {
+    res.set("Access-Control-Allow-Methods", "GET");
+    res.set("Access-Control-Max-Age", "3600");
+    res.status(204).send("");
+  } else {
+    const name = client.modelPath(
+      process.env.PROJECT_ID,
+      process.env.REGION,
+      process.env.MODEL_ID
+    );
+
+    const payload = {
+      image: {
+        imageBytes: req.body
+      }
+    };
+
+    const request = {
+      name,
+      payload
+    };
+
+    const response = await client
+      .predict(request)
+      .then(responses => {
+        return JSON.stringify(responses);
+      })
+      .catch(err => {
+        console.error(err);
+      });
+
+    res.status(200).send({
+      body: JSON.stringify(response)
+    });
+  }
+};

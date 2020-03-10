@@ -121,11 +121,11 @@
     </main>
 
     <script>
-      const REGION = "europe-west1";
-      const PROJECT_ID = "";
-      const endpoint = `https://${REGION}-${PROJECT_ID}.cloudfunctions.net/catOrDog`;
+      const PROJECT_ID = ""; // THIS MUST BE UPDATED BY YOU!
+      const REGION = "us-central1";
+      const ENDPOINT = `https://${REGION}-${PROJECT_ID}.cloudfunctions.net/catOrDog`;
 
-      const options = bytes => {
+      const OPTIONS = bytes => {
         return {
           "Access-Control-Allow-Origin": "*",
           "Content-Type": "application/json",
@@ -137,13 +137,13 @@
       document.querySelector("input").addEventListener(
         "change",
         function() {
-          const reader = new FileReader();
+          const READER = new FileReader();
 
-          reader.onloadend = function() {
+          READER.onloadend = function() {
             submitImage(this.result);
           };
 
-          reader.readAsDataURL(this.files[0]);
+          READER.readAsDataURL(this.files[0]);
         },
         false
       );
@@ -151,33 +151,33 @@
       async function submitImage(bytes) {
         bytes = bytes.split(",")[1];
 
-        const resp = await getData(bytes);
-        const data = JSON.parse(resp.body);
-        const unpackedData = JSON.parse(data);
+        const RESPONSE = await getData(bytes);
+        const DATA = JSON.parse(RESPONSE.body);
+        const UNPACKED_DATA = JSON.parse(DATA);
 
-        const animal = unpackedData[0].payload[0].displayName;
-        const score = unpackedData[0].payload[0].classification.score;
+        const ANIMAL = UNPACKED_DATA[0].payload[0].displayName;
+        const SCORE = UNPACKED_DATA[0].payload[0].classification.score;
 
-        displayResult(animal, score);
+        displayResult(ANIMAL, SCORE);
       }
 
       async function getData(bytes) {
-        const data = await fetch(endpoint, options(bytes));
-        return data.json();
+        const DATA = await fetch(ENDPOINT, OPTIONS(bytes));
+        return DATA.json();
       }
 
       function prettifyScore(score) {
-        const prettifiedScore = Math.round(score * 100);
-        return prettifiedScore;
+        return Math.round(score * 100);
       }
 
       function displayResult(animal, score) {
-        const prettifiedScore = prettifyScore(score);
-
+        const PRETTIFIED_SCORE = prettifyScore(score);
         let displayText = ``;
-        if (prettifiedScore < 97) {
+
+        if (PRETTIFIED_SCORE < 97) {
           displayText = `I'm not sure this is either a cat or a dog...`;
         } else displayText = `I'm ${prettifiedScore}% sure it's a ${animal}!`;
+
         document.querySelector("#Result").innerText = displayText;
       }
     </script>
